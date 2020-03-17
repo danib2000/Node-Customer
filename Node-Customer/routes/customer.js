@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const search = require("./search");
 const User = require('../modules/User');
-
+const UserController = require('../controllers/customerController');
 
 //GET requests 
 
@@ -49,28 +49,48 @@ router.get('/:userId', (req, res, next) =>{
 
 //POST requests
 router.post('/', (req, res, next) =>{
-    const customer = new User({
-        _id: new mongoose.Types.ObjectId(),
-        name : req.body.name,
-        email : req.body.email,
-        phone : req.body.phone
-    });
-    customer.save().then(result =>
-        {
-            console.log(result)
-            res.status(201).json({
-                user: customer,
-                message : "YAY! POST"
-            });
-        })
-        .catch(err =>
-            {
-                console.log(err)
-                res.status(500).json({
-                    error: err
-                });
-            });
-    
+    try{
+    UserController.addNewUser(
+        req.body.userName,
+        req.body.email,
+        req.body.password,
+        req.body.role).then(res.sendStatus(200)); 
+    }
+    catch (err) {
+        console.error(err);
+        if (err.message === "Not Found") {
+        res.status(404).json({ Error: err.message });
+        } else {
+        res.status(400).json({ Error: err.message });
+        }
+    }
+})
+router.post('/delete', (req,res) =>{
+    try{
+        UserController.deleteUser(req.body.id).then(res.sendStatus(200));
+    }catch(err){
+        if (err.message === "Not Found") {
+            res.status(404).json({ Error: err.message });
+            } else {
+            res.status(400).json({ Error: err.message });
+        }
+    }
+});
+router.post('/authenticate', (req,res,next) =>{
+    try {
+        UserController
+          .authenticateLogIn(req.body.userName, req.body.password)
+          .then(token => {
+            res.status(200).json({ token: token });
+          });
+      } catch (err) {
+        console.error(err);
+        if (err.message === "Not Found") {
+          res.status(404).json({ Error: err.message });
+        } else {
+          res.status(400).json({ Error: err.message });
+        }
+      }
 });
 
 module.exports = router;

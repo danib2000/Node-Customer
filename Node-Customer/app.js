@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const bodyParser = require('body-parser');
 const search = require('./routes/search');
 
-mongoose.connect("mongodb+srv://danib2000:12345@workcluster-8ib57.mongodb.net/test?retryWrites=true&w=majority", { useUnifiedTopology: true });
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -32,6 +32,8 @@ app.use((req, res, next) => {
     next(err);
 });
 
+
+
 app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.json({
@@ -40,4 +42,11 @@ app.use((err, req, res, next) => {
         }
     });
 });
+const uri = "mongodb+srv://ethmp:ethmp@ethcluster-utde5.mongodb.net/test?retryWrites=true&w=majority";
+
+mongoose.connect(uri, { useUnifiedTopology: true })
+.then(()=>{
+    app.listen(3001,()=>{console.log('Server running on port 3001');});
+});
+
 module.exports = app;
