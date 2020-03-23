@@ -85,7 +85,6 @@ class UserController {
       // hash given password
       const hasedPassword = await this.hashUserPassword(password, userName);
       if (user.passwordHash === hasedPassword) {
-          console.log('asd');
         // if passwords matches, generate and return user token.
         return new Promise((resolve, reject) => {
           this.saveUserToken(user)
@@ -97,8 +96,6 @@ class UserController {
             });
         });
       } else {
-        console.log('aaa');
-
         throw new Error("Authentication Failed");
       }
     } catch (err) {
@@ -119,16 +116,17 @@ class UserController {
         jwt.verify(token, "test-secret-key", (err, authData) => {
           if (err) {
             reject(err);
-          } else {
+          }else{
             // check if token is valid with the user
-            UserSchema.findOne({ _id: authData.id }).then(user => {
+            console.log(authData.id);
+            UserSchema.findById(authData.id).then(user => {
               if (token === user.token) {
                 resolve(authData);
               } else {
                 reject(new Error("Expired token"));
               }
             });
-          }
+          };
         });
       });
     } catch (err) {
@@ -308,7 +306,10 @@ class UserController {
       throw new Error(err.message);
     }
   }
+ 
 }
+
+  
 
 module.exports = new UserController();
 

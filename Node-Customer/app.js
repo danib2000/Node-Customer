@@ -5,12 +5,14 @@ const mongoose = require("mongoose");
 const authRoutes = require('./routes/customer');
 const morgan = require("morgan");
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const search = require('./routes/search');
 
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(cors());
 
 //cores headers
 app.use((req, res, next) => {
@@ -21,7 +23,8 @@ app.use((req, res, next) => {
         return res.status(200).json({});
     }
     next();
-})
+});
+
 
 // Routes which should handle requests
 app.use('/customer', authRoutes);
