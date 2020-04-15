@@ -1,4 +1,5 @@
 const UserSchema = require('../modules/User');
+const notificationScheme = require('../modules/notification');
 const crypto = require("crypto");
 const generateSalt = require("csprng");
 const jwt = require("jsonwebtoken");
@@ -190,6 +191,20 @@ class UserController {
       throw new Error(err.message);
     }
   }
+  /**
+   *  updates all the seller fields and adds a new notification for admin
+   * @param {String} username 
+   * @param {String} newRole 
+   * @param {String} address 
+   * @param {String} city 
+   * @param {String} country 
+   * @param {String} region 
+   * @param {String} secondAddress 
+   * @param {String} secondCity 
+   * @param {String} secondRegion 
+   * @param {String} walletAddress 
+   * @param {String} infoAboutUser 
+   */
   async updateSeller(username,newRole, address, city, country, region, secondAddress, secondCity, secondRegion, walletAddress, infoAboutUser ){
     try{
       var objForUpdate = {};
@@ -227,7 +242,56 @@ class UserController {
       throw new Error(err.message);
     }
   }
-
+  /**
+   * creates a new notification
+   * @param {*} notificationUser 
+   * @param {*} userToNotify
+   * @param {*} notifieAdmin 
+   * @param {*} type 
+   * @param {*} info 
+   */
+  async addNewNotification(notificationUserName,userToNotify, notifyAdmin, type, info){
+    const usersToNotify = [];
+    const notificationUser = await UserSchema.findOne({userName :notificationUserName }).select('_id');
+    if(userToNotify){
+      let id = await UserSchema.findOne({userName :userToNotify }).select('_id');
+      this.adjusteNotification(id, 1);
+      usersToNotify.push(id);
+    }
+    if(notifyAdmin){
+      const userAdmins = await UserSchema.find({role :"Admin"}).select('_id');
+      userAdmins.forEach(id =>{
+        this.adjusteNotification(id, 1);
+        usersToNotify.push(id);
+      });
+    }
+    const newNotification = new notificationScheme({
+      usersToNotify :usersToNotify,
+      notificationUser :notificationUser,
+      type: type,
+      info: info
+    });
+    return new Promise((resolve, reject) => {newNotification.save()
+      .then(()=>{
+        resolve();
+      }).catch((err)=>{
+        reject(err);
+      });}); 
+  }
+  /**
+   * increments/decrement notification by amount
+   * @param {string} uid 
+   * @param {int} amount
+   */
+  async adjusteNotification(uid, amount){
+    try{
+       await UserSchema.findOneAndUpdate({_id:uid},
+        {$inc: {notification:amount}
+        });
+    }catch(err){
+      throw new Error(err.message);
+    }
+  }
 
   /**
    * delete user record from db
@@ -240,7 +304,25 @@ class UserController {
       throw new Error(err.message);
     }
   }
+  
+  /**
+   * finds user id from userName
+   * @param {string} userName 
+   */
+  async getIdbyUserName(userName){
+    const id = await UserSchema.findOne({userName :userName }).select('_id');
+    console.log(id);
+    return id;
+  }
+  async getpopulatedNotificationByUserId(uid){
+    const notifications = await notificationScheme.find({usersToNotify : uid}).populate('usersToNotify');
 
+    console.log(notifications[0].usersToNotify[0]);
+  }
+  async getAllNotificationForUser(userName){
+    const id = await this.getIdbyUserName(userName);
+    this.getpopulatedNotificationByUserId(id);
+  }
   /**
    * reset other user password
    * @param {string} uid

@@ -76,10 +76,19 @@ router.get('/getCustomer', (req,res,next) =>{
         }
     }
 });
+router.get('/getNotification', (req,res)=>{
+  try{  
+    customerController.getAllNotificationForUser(req.body.userName);
+    res.sendStatus(200);
+
+  }catch(err){
+    console.error(err);
+  };
+});
+
 
 //GET by id
 router.get('/:userId', (req, res, next) =>{
-    
     const id = req.params.userId;
     User.findById(id).exec().then(doc => {
         console.log(doc);
@@ -96,7 +105,6 @@ router.get('/:userId', (req, res, next) =>{
         });
     
 });
-
 
 
 
@@ -188,6 +196,27 @@ router.post('/authenticate', (req,res,next) =>{
           res.status(400).json({ Error: err.message });
         }
       }
+});
+
+router.post('/newNotification', (req,res) => {
+  try{
+    customerController.addNewNotification(req.body.notificationUser,
+      req.body.userToNotify,
+      req.body.notifyAdmin,
+      req.body.type,
+      req.body.info).then(()=>{
+        res.status(200).json({notification: "created!" });
+      }).catch(err => {
+        console.error(err);
+        if (err.message === "Not Found") {
+          res.status(404).json({ Error: err.message });
+        } else {
+          res.status(400).json({ Error: err.message });
+        }
+      });
+  }catch(err){
+    console.error(err);
+  }
 });
 
 module.exports = router;

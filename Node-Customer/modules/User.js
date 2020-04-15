@@ -11,13 +11,14 @@ const userScheme = new Scheme({
     city          : {type:String},
     region        : {type:String},
     secondAddress : {type:String},
-    country       : {trye:String},
+    country       : {type:String},
     secondCity    : {type:String},
     secondRegion  : {type:String},
     walletAddress : {type:String},
     firstName     : {type:String},
     lastName      : {type:String},
     infoAboutUser : {type:String},
+    notification  : {type:Number, default:0}
 });
 module.exports = mongoose.model("User", userScheme);
 
