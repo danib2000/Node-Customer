@@ -11,8 +11,6 @@ class UserController {
   async getUserSalt(userName) {
     try {
       const user = await UserSchema.findOne({ userName: userName });
-      console.log(user);
-
       if (user) {
         return user.salt;
       } else {
@@ -118,8 +116,8 @@ class UserController {
             reject(err);
           }else{
             // check if token is valid with the user
-            console.log(authData.id);
             UserSchema.findById(authData.id).then(user => {
+              console.log(authData);
               if (token === user.token) {
                 resolve(authData);
               } else {
@@ -155,7 +153,13 @@ class UserController {
         passwordHash: passwordHash,
         role: role
       });
-      newUser.save();
+      
+       return new Promise((resolve, reject) => {newUser.save()
+        .then(()=>{
+          resolve();
+        }).catch((err)=>{
+          reject(err);
+        });}); 
     } catch (err) {
       throw new Error(err.message);
     }
@@ -163,22 +167,20 @@ class UserController {
 
   /**
    * update user details
-   * @param {string} uid
-   * @param {string} newUserName
+   * @param {string} userName
    * @param {string} newPassword
    * @param {string} newRole
    * @param {string} newEmail
    */
-  async updateUser(uid, newUserName, newPassword, newRole, newEmail) {
+  async updateUser(userName, newPassword, newRole, newEmail) {
     try {
       // Find the user
-      const user = await UserSchema.findOne({ _id: uid });
+      const user = await UserSchema.findOne({ userName: userName });
       // After finding a user, generate new salt for him
       const salt = await this.generateSalt();
       // Hash the new password
       const passwordHash = await this.hashPassword(newPassword, salt);
       //change and save the user details
-      user.userName = newUserName;
       user.passwordHash = passwordHash;
       user.salt = salt;
       user.email = newEmail;
@@ -188,6 +190,44 @@ class UserController {
       throw new Error(err.message);
     }
   }
+  async updateSeller(username,newRole, address, city, country, region, secondAddress, secondCity, secondRegion, walletAddress, infoAboutUser ){
+    try{
+      var objForUpdate = {};
+      objForUpdate.role = newRole;
+      objForUpdate.address = address;
+      objForUpdate.city = city;
+      objForUpdate.country = country;
+      objForUpdate.region = region;  
+      objForUpdate.secondAddress = secondAddress;
+      objForUpdate.secondCity = secondCity;
+      objForUpdate.secondRegion = secondRegion;
+      objForUpdate.walletAddress = walletAddress;
+      objForUpdate.infoAboutUser = infoAboutUser;
+      objForUpdate = { $set: objForUpdate };
+      return new Promise((resolve, reject)=>{
+        UserSchema.updateOne (
+          { userName : username },
+          objForUpdate,
+          ( err, result )=> {
+              if ( err ) reject(err);
+              if (result) {
+                UserSchema.findOne({ userName: username }).then((user) =>{
+                  this.saveUserToken(user).then(token => {
+                    resolve(token);
+                  })
+                  .catch(err => {
+                    reject(err);
+                  });
+                })};
+          }
+      );
+      })
+      
+    }catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
 
   /**
    * delete user record from db
@@ -285,10 +325,21 @@ class UserController {
       return new Promise((resolve, reject) => {
         jwt.sign(
           {
-            id: user._id,
-            email: user.email,
-            userName: user.userName,
-            role: user.role
+            id            : user._id,
+            email         : user.email,
+            userName      : user.userName,
+            role          : user.role,
+            address       : user.address,
+            city          : user.city         ,
+            country       : user.country      ,
+            region        : user.region       ,
+            secondAddress : user.secondAddress,
+            secondCity    : user.secondCity   ,
+            secondRegion  : user.secondRegion ,
+            walletAddress : user.walletAddress,
+            firstName     : user.firstName    ,
+            lastName      : user.lastName     ,
+            infoAboutUser : user.infoAboutUser
           },
           "test-secret-key",
           { expiresIn: "5h" },

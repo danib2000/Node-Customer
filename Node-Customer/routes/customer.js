@@ -32,7 +32,6 @@ function verifyToken(req, res, next) {
 //GET requests 
 
 router.get('/', (req, res, next) =>{
-    
     User.find().then(docs => {
         console.log(docs);
         res.status(200).json(docs);
@@ -65,8 +64,9 @@ router.get('/getCustomer', (req,res,next) =>{
         customerController.getUserDetailsFromToken(req.token).then((customer) =>{
             res.status(200).json(customer);
         }).catch((err) => {
+            res.sendStatus(400);
             throw new Error(err);
-        });
+         });
     }catch (err){
         console.error(err);
         if (err.message === "Not Found") {
@@ -91,7 +91,6 @@ router.get('/:userId', (req, res, next) =>{
         
     })
     .catch(err => {
-        console.log('zxc');
         console.log(err) 
         res.status(500).json({error : err})
         });
@@ -105,11 +104,13 @@ router.get('/:userId', (req, res, next) =>{
 //POST requests
 router.post('/create', (req, res, next) =>{
     try{
-    customerController.addNewUser(
+      customerController.addNewUser(
         req.body.userName,
         req.body.email,
         req.body.password,
-        req.body.role).then(res.sendStatus(200)); 
+        req.body.role).then(() => res.sendStatus(200)).catch((err)=>{
+          res.status(409).json({Error:err.message});
+      }); 
     }
     catch (err) {
         console.error(err);
@@ -131,14 +132,55 @@ router.post('/delete', (req,res) =>{
         }
     }
 });
+router.post('/update', (req,res)=>{
+  try{
+    if(req.body.isSeller){
+      customerController.updateSeller(
+        req.body.userName, 
+        req.body.role,
+        req.body.address,
+        req.body.city,
+        req.body.country,
+        req.body.region,
+        req.body.secondAddress,
+        req.body.secondCity,
+        req.body.secondRegion,
+        req.body.walletAddress,
+        req.body.infoAboutUser)
+        .then((token)=> {
+          res.status(200).json({Update : "Updated!", token:token})
+          }).catch(err =>{
+            if (err.message === "Not Found") {
+              res.status(404).json({ Error: err.message });
+              } else {
+              res.status(400).json({ Error: err.message });
+          }
+        });
+      };   
+  }catch(err){
+    if (err.message === "Not Found") {
+        res.status(404).json({ Error: err.message });
+        } else {
+        res.status(400).json({ Error: err.message });
+    }
+}
+});
+
 router.post('/authenticate', (req,res,next) =>{
     try {
         customerController
           .authenticateLogIn(req.body.userName, req.body.password)
           .then(token => {
             res.status(200).json({ token: token });
+          }).catch(err => {
+            console.error(err);
+            if (err.message === "Not Found") {
+              res.status(404).json({ Error: err.message });
+            } else {
+              res.status(400).json({ Error: err.message });
+            }
           });
-      } catch (err) {
+      }catch (err) {
         console.error(err);
         if (err.message === "Not Found") {
           res.status(404).json({ Error: err.message });
