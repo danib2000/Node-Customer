@@ -32,6 +32,10 @@ jobs:
 
       - name: run ls
         run: ls -ali
+      - name: run docker build
+        run: docker build .
+      - name: run docker push
+        run: docker push 
         
       - name: Build and push Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
