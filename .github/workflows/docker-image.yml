@@ -34,6 +34,8 @@ jobs:
         run: ls -ali
       - name: run docker build
         run: docker build . -t node-customer  
+      - name : run docker tag
+        run: docker tag node-customer hub.docker.com
       - name: run docker push
         run: docker push danib2000/node-customer:tagname
 
