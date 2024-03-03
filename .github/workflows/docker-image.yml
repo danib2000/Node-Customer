@@ -33,7 +33,7 @@ jobs:
       - name: run ls
         run: ls -ali
       - name: run docker build
-        run: docker build . -t node-customer
-      - name: docker tag
-        run: docker tag test  
+        run: docker build . -t node-customer  
       - name: run docker push
+        run: docker push danib2000/node-customer:tagname
+
