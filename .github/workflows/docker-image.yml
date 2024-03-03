@@ -30,7 +30,7 @@ jobs:
       - name: run ls
         run: ls -ali
       - name: run cd
-        run: cd Node-Customer/Node-Customer
+        run: cd Node-Customer
 
       - name: run ls
         run: ls -ali
