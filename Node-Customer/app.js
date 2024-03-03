@@ -44,12 +44,14 @@ app.use((err, req, res, next) => {
             message: err.message
         }
     });
-});
-const uri = "mongodb+srv://ethmp:ethmp@ethcluster-utde5.mongodb.net/test?retryWrites=true&w=majority";
+// });
+// const uri = "mongodb+srv://ethmp:ethmp@ethcluster-utde5.mongodb.net/test?retryWrites=true&w=majority";
 
-mongoose.connect(uri, { useUnifiedTopology: true })
-.then(()=>{
-    app.listen(3001,()=>{console.log('Server running on port 3001');});
-});
+// mongoose.connect(uri, { useUnifiedTopology: true })
+// .then(()=>{
+//     app.listen(3001,()=>{console.log('Server running on port 3001');});
+// });
 
+app.listen(3001,()=>{console.log('Server running on port 3001');});
+    
 module.exports = app;
