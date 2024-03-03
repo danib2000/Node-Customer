@@ -35,7 +35,7 @@ jobs:
       - name: run docker build
         run: docker build . -t node-customer  
       - name : run docker tag
-        run: docker tag node-customer hub.docker.com
+        run: docker tag node-customer hub.docker.com/danib2000/node-customer:tagname
       - name: run docker push
         run: docker push hub.docker.com/danib2000/node-customer:tagname
 
