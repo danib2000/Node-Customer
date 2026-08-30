@@ -27,6 +27,22 @@ app.use((req, res, next) => {
 
 
 // Routes which should handle requests
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'UP' });
+});
+
+app.get('/status', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+app.get('/metrics', (req, res) => {
+    res.status(200).json({
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+        cpuUsage: process.cpuUsage()
+    });
+});
+
 app.use('/customer', authRoutes);
 //app.use('/auth/search', search)
 app.use((req, res, next) => {
@@ -44,7 +60,7 @@ app.use((err, req, res, next) => {
             message: err.message
         }
     });
-// });
+});
 // const uri = "mongodb+srv://ethmp:ethmp@ethcluster-utde5.mongodb.net/test?retryWrites=true&w=majority";
 
 // mongoose.connect(uri, { useUnifiedTopology: true })
