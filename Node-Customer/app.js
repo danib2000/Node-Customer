@@ -10,7 +10,7 @@ const search = require('./routes/search');
 
 
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -18,7 +18,7 @@ app.use(cors());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Controll-Allow-Headers', '*');
-    if(req.method == 'OPTIONS') {
+    if (req.method == 'OPTIONS') {
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
         return res.status(200).json({});
     }
@@ -68,6 +68,10 @@ app.use((err, req, res, next) => {
 //     app.listen(3001,()=>{console.log('Server running on port 3001');});
 // });
 
-app.listen(3001,()=>{console.log('Server running on port 3001');});
-    
+const PORT = process.env.PORT || 3001;
+//app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); });
+
+app.listen(3001, () => { console.log(`Server running on port ${PORT}`); });
+
+
 module.exports = app;

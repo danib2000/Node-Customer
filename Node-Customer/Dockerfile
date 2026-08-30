@@ -5,5 +5,6 @@ COPY package*.json ./
 USER node
 RUN npm install
 COPY --chown=node:node . .
-EXPOSE 8080
+ENV PORT=3001
+EXPOSE 3001
 CMD [ "node", "app.js" ]
