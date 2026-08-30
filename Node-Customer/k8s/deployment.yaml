@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-customer-deployment
+  labels:
+    app: node-customer
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: node-customer
+  template:
+    metadata:
+      labels:
+        app: node-customer
+    spec:
+      containers:
+      - name: node-customer
+        image: danib2000/node-customer:v1 # Change this to your actual image name/tag
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: node-customer-config
+        ports:
+        - containerPort: 3001
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 20
